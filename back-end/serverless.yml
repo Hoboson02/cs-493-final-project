@@ -40,6 +40,9 @@ provider:
 functions:
   - ${file(cloudformation/functions.yml)}
 
+resources:
+  - ${file(cloudformation/dynamodb.yml)}
+
 plugins:
   - serverless-webpack
   - serverless-plugin-resource-tagging
