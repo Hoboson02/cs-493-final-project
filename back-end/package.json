@@ -1,5 +1,5 @@
 {
-  "name": "<REPLACE_PROJECT_NAME>",
+  "name": "cs-493-final-project",
   "version": "1.0.1",
   "main": "src/handler.js",
   "license": "MIT",

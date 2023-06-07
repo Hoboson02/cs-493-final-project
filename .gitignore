@@ -1,0 +1,5 @@
+node_modules
+back-end/node-node_modules
+back-end/.serverless
+pipeline/run-cicd.py
+back-end/.webpack

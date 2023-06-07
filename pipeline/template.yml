@@ -4,7 +4,7 @@ Description: github-codepipeline
 Parameters:
   GitHubRepo:
     Type: String
-    Default: <REPLACE_PROJECT_NAME>
+    Default: cs-493-final-project
   GitHubBranch:
     Type: String
     Default: <REPLACE_BRANCH_NAME>

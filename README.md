@@ -32,7 +32,7 @@
 10. The value for gitHubOwner should be your github profile name
 11. The value for gitHubOAuthToken should be the token you copied at the end othe Github OAuth Token setup
 12. Click the orange "Next" button in the bottom right corner
-13. For "Secret name" put <REPLACE_PROJECT_NAME>-githubPersonalAccess
+13. For "Secret name" put cs-493-final-project-githubPersonalAccess
 14. A description is not required, but you may add one if you want
 15. Click the orange "Next" button in the bottom right corner for step 2 & 3
 16. Check to make sure everything looks correct on the Review page and click on the orange "Store" button when you are ready to create your secret

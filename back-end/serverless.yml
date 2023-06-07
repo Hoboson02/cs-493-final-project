@@ -1,4 +1,4 @@
-service: <REPLACE_PROJECT_NAME>
+service: cs-493-final-project
 
 frameworkVersion: '3'
 
@@ -14,7 +14,7 @@ provider:
   region: us-west-2
   
   stackTags:
-    Created By: <REPLACE_NAME>
+    Created By: Danielle Puga & Ryan Earl
   logs:
     restApi:
       format: >-
