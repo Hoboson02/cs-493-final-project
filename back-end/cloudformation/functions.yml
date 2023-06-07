@@ -1,0 +1,3 @@
+test:
+  handler: src/functions/test.handler
+  timeout: 30
