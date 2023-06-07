@@ -5,9 +5,9 @@ Parameters:
   GitHubRepo:
     Type: String
     Default: cs-493-final-project
-  GitHubBranch:
+  GitHubBranch: 
     Type: String
-    Default: <REPLACE_BRANCH_NAME>
+    Default: main
 
 Resources:
   CloudFormationTrustRole:
