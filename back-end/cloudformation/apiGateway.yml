@@ -1,0 +1,71 @@
+Resources:
+  MyRestApi:
+    Type: 'AWS::ApiGateway::RestApi'
+    Properties:
+      Name: !Sub ${self:service}-${self:provider.stage}-${AWS::AccountId}-rest-api
+      Description: Final Project
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+  MyRestApiNowDeployment: 
+    # DependsOn: CourseResource
+    Type: AWS::ApiGateway::Deployment
+    Properties: 
+      RestApiId: !Ref MyRestApi
+      StageName: main
+
+  # MethodExecutionRole:
+  #     Type: AWS::IAM::Role
+  #     Properties:
+  #       AssumeRolePolicyDocument:
+  #         Version: "2012-10-17"
+  #         Statement:
+  #           - Effect: "Allow"
+  #             Principal:
+  #               Service: apigateway.amazonaws.com
+  #             Action: "sts:AssumeRole"
+
+  GetMethod:
+    # DependsOn: MethodExecutionRole
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !GetAtt MyRestApi.RootResourceId
+      RestApiId: !Ref MyRestApi
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: GET
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - ':lambda:path/2015-03-31/functions/'
+            - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-test
+            - '/invocations'
+# Course Path
+  # CourseResource:
+  #   Type: 'AWS::ApiGateway::Resource'
+  #   Properties:
+  #     ParentId: !GetAtt MyRestApi.RootResourceId
+  #     PathPart: courses
+  #     RestApiId: !Ref MyRestApi
+
+  # CourseGetMethod:
+  #   DependsOn: MethodExecutionRole
+  #   Type: 'AWS::ApiGateway::Method'
+  #   Properties:
+  #     AuthorizationType: NONE
+  #     HttpMethod: GET
+  #     ResourceId: !Ref CourseResource
+  #     RestApiId: !Ref MyRestApi
+  #     Integration:
+  #       Type: AWS_PROXY
+  #       IntegrationHttpMethod: POST
+  #       Uri: !Join
+  #         - ''
+  #         - - 'arn:aws:apigateway:'
+  #           - !Ref 'AWS::Region'
+  #           - ':lambda:path/2015-03-31/functions/'
+  #           - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-test
+  #           - '/invocations'
