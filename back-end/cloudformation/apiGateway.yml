@@ -8,25 +8,25 @@ Resources:
         Types:
           - REGIONAL
   MyRestApiNowDeployment: 
-    # DependsOn: CourseResource
+    DependsOn: GetMethod
     Type: AWS::ApiGateway::Deployment
     Properties: 
       RestApiId: !Ref MyRestApi
       StageName: main
 
-  # MethodExecutionRole:
-  #     Type: AWS::IAM::Role
-  #     Properties:
-  #       AssumeRolePolicyDocument:
-  #         Version: "2012-10-17"
-  #         Statement:
-  #           - Effect: "Allow"
-  #             Principal:
-  #               Service: apigateway.amazonaws.com
-  #             Action: "sts:AssumeRole"
+  MethodExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Service: apigateway.amazonaws.com
+              Action: "sts:AssumeRole"
 
   GetMethod:
-    # DependsOn: MethodExecutionRole
+    DependsOn: MethodExecutionRole
     Type: 'AWS::ApiGateway::Method'
     Properties:
       AuthorizationType: NONE
