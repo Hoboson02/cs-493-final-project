@@ -36,7 +36,7 @@ provider:
       Action:
         - "dynamodb:Scan"
         - "dynamodb:UpdateItem"
-      Resource: !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/cs-493-final-project-main-data
+      Resource: !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/${self:service}-*
     - Effect: "Allow"
       Action:
         - "secretsmanager:GetSecretValue"
@@ -48,7 +48,6 @@ functions:
 
 resources:
   - ${file(cloudformation/dynamodb.yml)}
-  - ${file(cloudformation/apiGateway.yml)}
   - ${file(cloudformation/apiGateway.yml)}
 
 plugins:

@@ -14,7 +14,7 @@ const client = new DynamoDBClient({region: 'us-west-2'});
 
 const dynamoDb = DynamoDBDocumentClient.from(client);
 
-const TABLE = 'cs-493-restful-api-main-data';
+const TABLE = 'cs-493-final-project-main-data';
 
 const testObject = {
   "courses": "test-course",
@@ -80,16 +80,18 @@ const testObject = {
     pathArray[pathArray.length-1] = pathArray[pathArray.length-1].replace('\"','');
     switch (request) {
       case 'GET':
-        response.body = data['Items']
+        response.body = JSON.stringify(data);
+        console.log(response);
+        break;
       case 'POST':
-        console.log(request);
         response.body = request;
+        break;
       case 'DELETE':
-        console.log(request);
         response.body = request;
+        break;
       default: 
         response.body = (`Unknown request: ${request}`);
     }
-    console.log(pathArray);
   }
+  return response;
 }
