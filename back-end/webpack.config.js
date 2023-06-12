@@ -5,7 +5,7 @@ module.exports = {
   entry: slsw.lib.entries,
   target: 'node',
   mode: slsw.lib.webpack.isLocal ? 'dev' : 'production',
-  externals: [nodeExternals(), 'aws-sdk', 'bufferutil', 'utf-8-validate'],
+  externals: [nodeExternals(), 'aws-sdk', 'bufferutil', 'utf-8-validate', '@aws-sdk/client-dynamodb', '@aws-sdk/lib-dynamodb'],
   module: {
     rules: [
       {

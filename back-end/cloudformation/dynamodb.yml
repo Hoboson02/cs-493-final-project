@@ -4,10 +4,10 @@ Resources:
     Properties:
       TableName: ${self:service}-${self:provider.stage}-data
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: courses
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: courses
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
