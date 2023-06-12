@@ -44,28 +44,28 @@ Resources:
             - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-test
             - '/invocations'
 # Course Path
-  # CourseResource:
-  #   Type: 'AWS::ApiGateway::Resource'
-  #   Properties:
-  #     ParentId: !GetAtt MyRestApi.RootResourceId
-  #     PathPart: courses
-  #     RestApiId: !Ref MyRestApi
+  CourseResource:
+    Type: 'AWS::ApiGateway::Resource'
+    Properties:
+      ParentId: !GetAtt MyRestApi.RootResourceId
+      PathPart: courses
+      RestApiId: !Ref MyRestApi
 
-  # CourseGetMethod:
-  #   DependsOn: MethodExecutionRole
-  #   Type: 'AWS::ApiGateway::Method'
-  #   Properties:
-  #     AuthorizationType: NONE
-  #     HttpMethod: GET
-  #     ResourceId: !Ref CourseResource
-  #     RestApiId: !Ref MyRestApi
-  #     Integration:
-  #       Type: AWS_PROXY
-  #       IntegrationHttpMethod: POST
-  #       Uri: !Join
-  #         - ''
-  #         - - 'arn:aws:apigateway:'
-  #           - !Ref 'AWS::Region'
-  #           - ':lambda:path/2015-03-31/functions/'
-  #           - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-test
-  #           - '/invocations'
+  CourseGetMethod:
+    DependsOn: MethodExecutionRole
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref CourseResource
+      RestApiId: !Ref MyRestApi
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - ':lambda:path/2015-03-31/functions/'
+            - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-test
+            - '/invocations'
