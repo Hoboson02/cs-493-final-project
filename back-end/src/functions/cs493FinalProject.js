@@ -16,54 +16,43 @@ const dynamoDb = DynamoDBDocumentClient.from(client);
 
 const TABLE = 'cs-493-final-project-main-data';
 
-const testObject = {
-  "courses": "test-course",
-  "courseInfo": {
-      "subjectSection": 5,
-      "courseName": "test-course",
-      "subjectTitle": "Computer Science",
-      "subjectTerm": "Spring",
-      "SubjectCredit": 4,
-      "Description": "This is a fake course"
-  },
-  "students": {
-      "testStudent1": {
-          "name": "test1",
-          "id":"25"
-          
-      },
-      "testStudent2": {
-          "name": "test2",
-          "id":"23"
-          
-      },
-      "testStudent3": {
-          "name": "test3",
-          "id":"34"
-          
-      }
-  },
-  "instructor": {"name": "testProf", "id":"1"},
-  "assignments": {
-      "testAssignment": {
-          "description": "This is a test assignment",
-          "dueDate": "06-15-23",
-          "name": "Test assignment",
-          "submissions": {
-              "studentName": {"filename": "test", "submissionTime": "2:34"}
-          }
-      }
+async function getCourse(course) {
+  const params = {
+    TableName: TABLE,
+    Key: {
+      'courses': course
+    }
+  };
+  try {
+    const data = await dynamoDb.send(new GetCommand(params));
+    return data.Item;
+  } catch (error) {
+    console.error(error);
   }
 }
 
 
- export const handler = async (event) => {
+export const handler = async (event) => {
+  let data;
   const request = event['httpMethod'];
   console.log(request);
-  let data = await dynamoDb.send(
-   new ScanCommand({ TableName: TABLE })
-   );
-   // data = data.Items;
+  var path = JSON.stringify(event['path']);
+  path.replace('"','');
+  const pathArray = path.split("/");
+  // pathArray.pop()
+  pathArray.shift();
+  pathArray[pathArray.length-1] = pathArray[pathArray.length-1].replace('\"','');
+  if (pathArray[0]) {
+    console.log("A get is commencing")
+    data = await getCourse(pathArray[0]);
+  }
+  else {
+    console.log("A Scan is commencing");
+    data = await dynamoDb.send(
+      new ScanCommand({ TableName: TABLE })
+    );
+  }
+ 
   const response = {
     isBase64Encoded: false,
     headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
@@ -71,13 +60,6 @@ const testObject = {
   
   if ((typeof data) === 'object') {
     response.statusCode = 200;
-    
-    var path = JSON.stringify(event['path']);
-    path.replace('"','');
-    const pathArray = path.split("/");
-    // pathArray.pop()
-    pathArray.shift();
-    pathArray[pathArray.length-1] = pathArray[pathArray.length-1].replace('\"','');
     switch (request) {
       case 'GET':
         response.body = JSON.stringify(data);
