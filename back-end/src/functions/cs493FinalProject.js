@@ -63,6 +63,14 @@ export const handler = async (event) => {
     response.statusCode = 200;
     switch (request) {
       case 'GET':
+        console.log(`${pathArray.length} : ${pathArray}`);
+        if (pathArray.length >= 3) {
+          console.log(JSON.stringify(data));
+          for (let i = 2; i < pathArray.length; i++) {
+            console.log(JSON.stringify(data[pathArray[i]]));
+            data = data[pathArray[i]];
+          }
+        }
         response.body = JSON.stringify(data);
         console.log(response);
         break;
