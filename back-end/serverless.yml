@@ -36,6 +36,7 @@ provider:
       Action:
         - "dynamodb:Scan"
         - "dynamodb:UpdateItem"
+        - "dynamodb:GetItem"
       Resource: !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/${self:service}-*
     - Effect: "Allow"
       Action:

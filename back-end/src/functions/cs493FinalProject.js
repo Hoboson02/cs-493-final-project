@@ -42,15 +42,16 @@ export const handler = async (event) => {
   // pathArray.pop()
   pathArray.shift();
   pathArray[pathArray.length-1] = pathArray[pathArray.length-1].replace('\"','');
-  if (pathArray[0]) {
+  if (pathArray[1]) {
     console.log("A get is commencing")
-    data = await getCourse(pathArray[0]);
+    data = await getCourse(pathArray[1]);
   }
   else {
     console.log("A Scan is commencing");
     data = await dynamoDb.send(
       new ScanCommand({ TableName: TABLE })
     );
+    data = data['Items'];
   }
  
   const response = {
