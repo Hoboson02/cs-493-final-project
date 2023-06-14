@@ -89,24 +89,6 @@ Resources:
             - ':lambda:path/2015-03-31/functions/'
             - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-apiCoursesEndpoint
             - '/invocations'
-  CourseDeleteMethod:
-    DependsOn: MethodExecutionRole
-    Type: 'AWS::ApiGateway::Method'
-    Properties:
-      AuthorizationType: NONE
-      HttpMethod: DELETE
-      ResourceId: !Ref CourseResource
-      RestApiId: !Ref MyRestApi
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: DELETE
-        Uri: !Join
-          - ''
-          - - 'arn:aws:apigateway:'
-            - !Ref 'AWS::Region'
-            - ':lambda:path/2015-03-31/functions/'
-            - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-apiCoursesEndpoint
-            - '/invocations'
 
   CourseNameResource:
     Type: 'AWS::ApiGateway::Resource'
@@ -144,6 +126,24 @@ Resources:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: PATCH
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - ':lambda:path/2015-03-31/functions/'
+            - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-apiCoursesEndpoint
+            - '/invocations'
+  CourseNameDeleteMethod:
+    DependsOn: MethodExecutionRole
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: DELETE
+      ResourceId: !Ref CourseNameResource
+      RestApiId: !Ref MyRestApi
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: DELETE
         Uri: !Join
           - ''
           - - 'arn:aws:apigateway:'
