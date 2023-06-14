@@ -31,6 +31,40 @@ async function getUser(user) {
   }
 }
 
+async function getUserUUID(idToken) {
+  idToken = idToken.split(' ');
+  idToken = idToken[1];
+  console.log(idToken)
+  const params = {
+    AccessToken: idToken
+  };
+  try {
+    const decoded = jwt.decode(idToken);
+    // const response = await cognito.getUser(params).promise();
+    const sub = decoded.sub;
+    // const sub = response.UserAttributes.find(attribute => attribute.Name === 'sub').Value;
+    return sub;
+  } catch (error) {
+    console.error('An error occurred while calling cognito.getUser:', error);
+    return null;
+  }
+}
+
+async function verifyIdToken(idToken, user) {
+  if (idToken == null) {
+    return false;
+  }
+  let uuid = await getUserUUID(idToken)
+  // const decodedToken = jwt.decode(idToken, {complete: true});
+  // const sub = decodedToken.payload.sub;
+  console.log(`user: ${user}- idToken: ${uuid}`)
+  if (uuid == user) {
+    return true;
+  } else {
+    console.log('User not found');
+    return false;
+  }
+}
 
 export const handler = async (event) => {
   let data;
@@ -63,26 +97,35 @@ export const handler = async (event) => {
     response.statusCode = 200;
     switch (request) {
       case 'GET':
-        console.log(`${pathArray.length} : ${pathArray}`);
-        if (pathArray.length >= 3) {
-          console.log(JSON.stringify(data));
-          for (let i = 2; i < pathArray.length; i++) {
-            console.log(JSON.stringify(data[pathArray[i]]));
-            data = data[pathArray[i]];
+        try {
+          console.log(event.headers);
+          const idToken = event.headers.Authorization;
+          console.log("Tried to get idToken");
+          if (await verifyIdToken(idToken, pathArray[1])) {
+            console.log("Verified User");
+            let result = userPath;
+            if (pathArray.length >= 1) {
+              result = result['entityName'];
+              for (let i = 1; i < pathArray.length; i++) {
+                result = result[pathArray[i]];
+              }
+            }
+            response.body = JSON.stringify(result);
+            console.log(result);
           }
+          else {
+            console.log("idToken failed");
+            throw new TypeError("idToken failed");
+          }
+          
         }
-        response.body = JSON.stringify(data);
-        console.log(response);
-        break;
-      case 'POST':
-        response.body = request;
-        break;
-      case 'DELETE':
-        response.body = request;
-        break;
+        catch {
+          response.body = 'Invalid Credentials';
+          response.statusCode = 401;
+        }
       default: 
         response.body = (`Unknown request: ${request}`);
-    }
+      }
   }
   return response;
 }
