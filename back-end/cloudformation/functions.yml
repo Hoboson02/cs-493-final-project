@@ -9,3 +9,11 @@ apiCoursesEndpoint:
 apiUsersEndpoint:
   handler: src/functions/apiUsersEndpoint.handler
   timeout: 60
+
+userCreation:
+  handler: src/functions/userCreation.handler
+  timeout: 60
+
+getUserLoginID:
+  handler: src/functions/getUserLoginID.handler
+  timeout: 60
