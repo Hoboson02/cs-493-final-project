@@ -431,3 +431,27 @@ Resources:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
         - ALLOW_USER_PASSWORD_AUTH
+  
+  UserPoolAdminGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      Description: Admin users for cs 493 final project api
+      GroupName: Admin
+      Precedence: 0
+      UserPoolId: !Ref UserPool
+
+  UserPoolInstructorGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      Description: Instructor users for cs 493 final project api
+      GroupName: Instructor
+      Precedence: 1
+      UserPoolId: !Ref UserPool
+
+  UserPoolStudentGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      Description: Student users for cs 493 final project api
+      GroupName: Student
+      Precedence: 2
+      UserPoolId: !Ref UserPool
