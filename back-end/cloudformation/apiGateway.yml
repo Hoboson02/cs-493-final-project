@@ -150,6 +150,7 @@ Resources:
             - !Ref 'AWS::Region'
             - ':lambda:path/2015-03-31/functions/'
             - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-cs493FinalProject
+            - '/invocations'
   CourseNameAssignmentsResource:
     Type: 'AWS::ApiGateway::Resource'
     Properties:
