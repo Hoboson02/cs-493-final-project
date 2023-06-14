@@ -208,6 +208,24 @@ Resources:
             - ':lambda:path/2015-03-31/functions/'
             - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-cs493FinalProject
             - '/invocations'
+  CourseNameAssignmentNameSubmissionsPostMethod:
+    DependsOn: MethodExecutionRole
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId: !Ref CourseNameAssignmentNameSubmissionsResource
+      RestApiId: !Ref MyRestApi
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - ':lambda:path/2015-03-31/functions/'
+            - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-cs493FinalProject
+            - '/invocations'
 
   CourseNameCourseInfoResource:
     Type: 'AWS::ApiGateway::Resource'
