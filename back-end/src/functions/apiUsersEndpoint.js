@@ -32,8 +32,8 @@ async function getUser(user) {
 }
 
 async function getUserUUID(idToken) {
-  idToken = idToken.split(' ');
-  idToken = idToken[1];
+  // idToken = idToken.split(' ');
+  // idToken = idToken[1];
   console.log(idToken)
   const params = {
     AccessToken: idToken
@@ -98,20 +98,10 @@ export const handler = async (event) => {
     switch (request) {
       case 'GET':
         try {
-          console.log(event.headers);
           const idToken = event.headers.Authorization;
-          console.log("Tried to get idToken");
           if (await verifyIdToken(idToken, pathArray[1])) {
             console.log("Verified User");
-            let result = userPath;
-            if (pathArray.length >= 1) {
-              result = result['entityName'];
-              for (let i = 1; i < pathArray.length; i++) {
-                result = result[pathArray[i]];
-              }
-            }
-            response.body = JSON.stringify(result);
-            console.log(result);
+            response.body = JSON.stringify(data);
           }
           else {
             console.log("idToken failed");
@@ -123,6 +113,7 @@ export const handler = async (event) => {
           response.body = 'Invalid Credentials';
           response.statusCode = 401;
         }
+        break;
       default: 
         response.body = (`Unknown request: ${request}`);
       }
