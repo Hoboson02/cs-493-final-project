@@ -21,13 +21,13 @@ async function getSub(username, userPoolId) {
   }
 }
 
-async function addUser(tableName, userId) {
+async function addUser(tableName, userId, defaultGroup) {
   const params = {
     TableName: tableName,
     Item: {
       "users": userId,
       "courseIDs": [],
-      "role": "placeholder"
+      "role": defaultGroup
     }
   };
   try {
@@ -39,6 +39,7 @@ async function addUser(tableName, userId) {
 }
 
 exports.handler = async (event) => {
+  let defaultGroup = 'Student';
   const response = {
     isBase64Encoded: false,
     headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
@@ -64,9 +65,13 @@ exports.handler = async (event) => {
       UserPoolId: userPoolId,
       Username: username
     }).promise();
-
+    await cognito.adminAddUserToGroup({
+      GroupName: defaultGroup,
+      UserPoolId: userPoolId,
+      Username: username
+    }).promise();
     uuid = await getSub(username, userPoolId)
-    await addUser('cs-493-final-project-main-users', uuid);
+    await addUser('cs-493-final-project-main-users', uuid, defaultGroup);
     response.statusCode = 200;
     response.body = JSON.stringify({message: `Thank you ${username} for registering`});
     return response;
