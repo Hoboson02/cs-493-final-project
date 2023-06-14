@@ -43,7 +43,13 @@ provider:
         - "secretsmanager:GetSecretValue"
       Resource:
         - !Sub arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:service}-*
-
+        - Effect: "Allow"
+      Action:
+        - "cognito-idp:AdminInitiateAuth"
+        - "cognito-idp:ListUsers"
+        - "cognito-idp:AdminConfirmSignUp"
+      Resource: !Sub arn:aws:cognito-idp:${self:provider.region}:${AWS::AccountId}:userpool/${self:provider.region}_IoBo5jDL6
+    
 functions:
   - ${file(cloudformation/functions.yml)}
 
