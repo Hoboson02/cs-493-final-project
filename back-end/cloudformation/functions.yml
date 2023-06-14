@@ -2,6 +2,10 @@ test:
   handler: src/functions/test.handler
   timeout: 30
 
-cs493FinalProject:
-  handler: src/functions/cs493FinalProject.handler
+apiCoursesEndpoint:
+  handler: src/functions/apiCoursesEndpoint.handler
+  timeout: 60
+
+apiUsersEndpoint:
+  handler: src/functions/apiUsersEndpoint.handler
   timeout: 60

@@ -12,3 +12,16 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+  GatewayUsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:service}-${self:provider.stage}-users
+      AttributeDefinitions:
+        - AttributeName: users
+          AttributeType: S
+      KeySchema:
+        - AttributeName: users
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
