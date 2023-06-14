@@ -14,7 +14,7 @@ const client = new DynamoDBClient({region: 'us-west-2'});
 
 const dynamoDb = DynamoDBDocumentClient.from(client);
 
-const TABLE = 'cs-493-final-project-main-data';
+const TABLE = 'cs-493-final-project-main-users';
 
 async function getCourse(course) {
   const params = {
