@@ -236,6 +236,24 @@ Resources:
             - ':lambda:path/2015-03-31/functions/'
             - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-cs493FinalProject
             - '/invocations'
+  CourseNameAssignmentNamePatchMethod:
+    DependsOn: MethodExecutionRole
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: PATCH
+      ResourceId: !Ref CourseNameAssignmentNameResource
+      RestApiId: !Ref MyRestApi
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: PATCH
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - ':lambda:path/2015-03-31/functions/'
+            - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-cs493FinalProject
+            - '/invocations'
   CourseNameAssignmentNameSubmissionsResource:
     Type: 'AWS::ApiGateway::Resource'
     Properties:
