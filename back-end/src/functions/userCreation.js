@@ -72,7 +72,7 @@ exports.handler = async (event) => {
     }).promise();
     uuid = await getSub(username, userPoolId)
     await addUser('cs-493-final-project-main-users', uuid, defaultGroup);
-    response.statusCode = 200;
+    response.statusCode = 201;
     response.body = JSON.stringify({message: `Thank you ${username} for registering`});
     return response;
   } catch (error) {
