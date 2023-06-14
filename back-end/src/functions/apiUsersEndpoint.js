@@ -16,11 +16,11 @@ const dynamoDb = DynamoDBDocumentClient.from(client);
 
 const TABLE = 'cs-493-final-project-main-users';
 
-async function getCourse(course) {
+async function getUser(user) {
   const params = {
     TableName: TABLE,
     Key: {
-      'courses': course
+      'users': user
     }
   };
   try {
@@ -44,7 +44,7 @@ export const handler = async (event) => {
   pathArray[pathArray.length-1] = pathArray[pathArray.length-1].replace('\"','');
   if (pathArray[1]) {
     console.log("A get is commencing")
-    data = await getCourse(pathArray[1]);
+    data = await getUser(pathArray[1]);
   }
   else {
     console.log("A Scan is commencing");
