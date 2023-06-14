@@ -329,7 +329,7 @@ Resources:
             - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-getUserLoginID
             - '/invocations'
 
- UserPostMethod:
+  UserPostMethod:
     DependsOn: MethodExecutionRole
     Type: 'AWS::ApiGateway::Method'
     Properties:
@@ -348,7 +348,7 @@ Resources:
             - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-userCreation
             - '/invocations'
 
- UserNameResource:
+  UserNameResource:
     Type: 'AWS::ApiGateway::Resource'
     Properties:
       ParentId: !Ref UserResource
@@ -390,3 +390,44 @@ Resources:
             - ':lambda:path/2015-03-31/functions/'
             - !Sub arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:${self:service}-${self:provider.stage}-cs493FinalProject
             - '/invocations'
+
+# ************************************** USER POOL **************************************
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties: 
+      AccountRecoverySetting: 
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      AdminCreateUserConfig: 
+        AllowAdminCreateUserOnly: false
+      AutoVerifiedAttributes: 
+        - email
+      EmailConfiguration: 
+        EmailSendingAccount: COGNITO_DEFAULT
+      MfaConfiguration: OFF
+      UsernameConfiguration: 
+        CaseSensitive: true
+      UserPoolName: !Sub ${self:service}-${self:provider.stage}-${AWS::AccountId}
+      UserPoolAddOns:
+        AdvancedSecurityMode: ENFORCED
+
+  MyAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: !Sub ${self:service}-${self:provider.stage}-${AWS::AccountId}
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      RestApiId: !Ref MyRestApi
+      ProviderARNs:
+        - !GetAtt UserPool.Arn
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub ${self:service}-${self:provider.stage}-${AWS::AccountId}-client
+      UserPoolId: !Ref UserPool
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
