@@ -24,29 +24,25 @@ async function getSub(username, userPoolId) {
 async function addUser(tableName, userId) {
   const params = {
     TableName: tableName,
-    Key: { id: 'user' },
-    UpdateExpression: 'SET #entityName.#userId = :newUserDetails',
-    ExpressionAttributeNames: {
-      '#entityName': 'entityName',
-      '#userId': userId
-    },
-    ExpressionAttributeValues: {
-      ':newUserDetails': {
-        'owned-businesses': [],
-        photos: [],
-        reviews: []
-      }
+    Item: {
+      "users": userId,
+      "courseIDs": [],
+      "role": "placeholder"
     }
   };
   try {
-    await docClient.update(params).promise();
-    console.log(`Added user ${userId} to entityName object`);
+    await docClient.put(params).promise();
+    console.log(`Added user ${userId} to ${tableName}`);
   } catch (error) {
     console.error(error);
   }
 }
 
 exports.handler = async (event) => {
+  const response = {
+    isBase64Encoded: false,
+    headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+  };
   const body = JSON.parse(event.body);
   const { username, password } = body;
   const userPoolId = 'us-west-2_IoBo5jDL6';
@@ -57,17 +53,26 @@ exports.handler = async (event) => {
       Username: username,
       Password: password,
     }).promise();
-
+  } catch (error){
+    console.error(error)
+    response.statusCode = 400;
+    response.body = JSON.stringify({message: "User with that name already exists"});
+    return response
+  }
+  try {
     await cognito.adminConfirmSignUp({
       UserPoolId: userPoolId,
       Username: username
     }).promise();
 
     uuid = await getSub(username, userPoolId)
-    await addUser('cs-493-final-project-main-data', uuid);
-    return { success: true };
+    await addUser('cs-493-final-project-main-users', uuid);
+    response.statusCode = 200;
+    response.body = JSON.stringify({message: `Thank you ${username} for registering`});
+    return response;
   } catch (error) {
     console.error(error);
-    return { success: false };
+    response.statusCode = 400;
+    return response;
   }
 };

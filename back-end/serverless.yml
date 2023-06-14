@@ -37,6 +37,7 @@ provider:
         - "dynamodb:Scan"
         - "dynamodb:UpdateItem"
         - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
       Resource: !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/${self:service}-*
     - Effect: "Allow"
       Action:
@@ -48,6 +49,7 @@ provider:
         - "cognito-idp:AdminInitiateAuth"
         - "cognito-idp:ListUsers"
         - "cognito-idp:AdminConfirmSignUp"
+        - "cognito-idp:adminAddUserToGroup"
       Resource: !Sub arn:aws:cognito-idp:${self:provider.region}:${AWS::AccountId}:userpool/${self:provider.region}_IoBo5jDL6
     
 functions:
