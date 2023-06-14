@@ -43,7 +43,6 @@ provider:
         - "secretsmanager:GetSecretValue"
       Resource:
         - !Sub arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:service}-*
-        - Effect: "Allow"
     - Effect: "Allow"
       Action:
         - "cognito-idp:AdminInitiateAuth"
