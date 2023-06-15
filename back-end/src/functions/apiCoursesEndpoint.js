@@ -31,14 +31,18 @@ async function getCourse(course) {
   }
 }
 
-async function getCourseList() {
+async function getKeyList(key, isObject) {
+  let coursesList;
   const params = {
     TableName: TABLE,
-    ProjectionExpression: 'courses'
+    ProjectionExpression: key
   };
   try {
     const data = await dynamoDb.send(new ScanCommand(params));
-    const coursesList = data.Items.map((item) => item.courses);
+    console.log(data.Items);
+    if (isObject){coursesList = data.Items.flatMap((item) => (item[key] ? Object.keys(item[key]) : []));}
+    else {coursesList = data.Items.map((item) => item[key]);}
+    
     console.log(coursesList);
     return coursesList;
   } catch (err) {
@@ -48,6 +52,10 @@ async function getCourseList() {
 
 export const handler = async (event) => {
   let data;
+  const response = {
+    isBase64Encoded: false,
+    headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+  };
   const request = event['httpMethod'];
   console.log(request);
   var path = JSON.stringify(event['path']);
@@ -58,41 +66,44 @@ export const handler = async (event) => {
   pathArray[pathArray.length-1] = pathArray[pathArray.length-1].replace('\"','');
   if (pathArray[1]) {
     console.log("A get is commencing")
-    data = await getCourse(pathArray[1]);
+    if (pathArray.length == 3){
+      data = await getKeyList(pathArray[2], true);
+      response.body = JSON.stringify(data);
+      response.statusCode = 200;
+    }
+    else{
+      data = await getCourse(pathArray[1]);
+      if ((typeof data) === 'object') {
+        response.statusCode = 200;
+        switch (request) {
+          case 'GET':
+            console.log(`${pathArray.length} : ${pathArray}`);
+            if (pathArray.length >= 3) {
+              console.log(JSON.stringify(data));
+              for (let i = 2; i < pathArray.length; i++) {
+                console.log(JSON.stringify(data[pathArray[i]]));
+                data = data[pathArray[i]];
+              }
+            }
+            response.body = JSON.stringify(data);
+            console.log(response);
+            break;
+          case 'POST':
+            response.body = request;
+            break;
+          case 'DELETE':
+            response.body = request;
+            break;
+          default: 
+            response.body = (`Unknown request: ${request}`);
+        }
+      }
+    }
   }
   else {
-    data = await getCourseList();
-  }
- 
-  const response = {
-    isBase64Encoded: false,
-    headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
-  };
-  
-  if ((typeof data) === 'object') {
+    data = await getKeyList('courses', false);
+    response.body = JSON.stringify(data);
     response.statusCode = 200;
-    switch (request) {
-      case 'GET':
-        console.log(`${pathArray.length} : ${pathArray}`);
-        if (pathArray.length >= 3) {
-          console.log(JSON.stringify(data));
-          for (let i = 2; i < pathArray.length; i++) {
-            console.log(JSON.stringify(data[pathArray[i]]));
-            data = data[pathArray[i]];
-          }
-        }
-        response.body = JSON.stringify(data);
-        console.log(response);
-        break;
-      case 'POST':
-        response.body = request;
-        break;
-      case 'DELETE':
-        response.body = request;
-        break;
-      default: 
-        response.body = (`Unknown request: ${request}`);
-    }
   }
   return response;
 }
