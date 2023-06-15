@@ -31,6 +31,20 @@ async function getCourse(course) {
   }
 }
 
+async function getCourseList() {
+  const params = {
+    TableName: TABLE,
+    ProjectionExpression: 'courses'
+  };
+  try {
+    const data = await dynamoDb.send(new ScanCommand(params));
+    const coursesList = data.Items.map((item) => item.courses);
+    console.log(coursesList);
+    return coursesList;
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 export const handler = async (event) => {
   let data;
@@ -47,11 +61,7 @@ export const handler = async (event) => {
     data = await getCourse(pathArray[1]);
   }
   else {
-    console.log("A Scan is commencing");
-    data = await dynamoDb.send(
-      new ScanCommand({ TableName: TABLE })
-    );
-    data = data['Items'];
+    data = await getCourseList();
   }
  
   const response = {
