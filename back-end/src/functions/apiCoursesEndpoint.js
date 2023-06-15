@@ -15,6 +15,8 @@ const client = new DynamoDBClient({region: 'us-west-2'});
 const dynamoDb = DynamoDBDocumentClient.from(client);
 
 const TABLEData = 'cs-493-final-project-main-data';
+const USERData = 'cs-493-final-project-main-users';
+
 
 async function updateCourseInfo(courseName, courseInfoData) {
   const params = {
@@ -137,10 +139,25 @@ async function getGroup(idToken) {
   }
   let decodedToken = await decodeToken(idToken)
   console.log(decodedToken);
-  const group = decodedToken['cognito:groups'];
+  
+  const group = decodedToken.sub;
   console.log(`group: ${group}`)
-  return (group)
-}
+  const params = {
+    TableName: USERData,
+    Key: {
+      'users': group
+    },
+      'projectExpression': "group"
+  };
+  try {
+    const data = await dynamoDb.send(new GetCommand(params));
+    return data.Item;
+    } catch (error) {
+    console.error(error);
+    }
+  }
+
+
 
 async function getCourse(course) {
   const params = {
