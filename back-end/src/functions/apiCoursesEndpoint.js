@@ -66,7 +66,7 @@ export const handler = async (event) => {
   pathArray[pathArray.length-1] = pathArray[pathArray.length-1].replace('\"','');
   if (pathArray[1]) {
     console.log("A get is commencing")
-    if (pathArray.length == 3){
+    if (pathArray[2] == 'assignments'){
       data = await getKeyList(pathArray[2], true);
       response.body = JSON.stringify(data);
       response.statusCode = 200;
