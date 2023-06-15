@@ -17,6 +17,43 @@ const dynamoDb = DynamoDBDocumentClient.from(client);
 const TABLEData = 'cs-493-final-project-main-data';
 const TABLEUser = 'cs-493-final-project-main-users';
 
+async function updateCourseInfo(courseName, courseInfoData) {
+  const params = {
+    TableName: TABLEData,
+    Key: { courses: courseName },
+    UpdateExpression: 'SET courseInfo = :courseInfoData',
+    ExpressionAttributeValues: {
+      ':courseInfoData': courseInfoData
+    }
+  };
+  try {
+    await dynamoDb.send(new UpdateCommand(params));
+    console.log(`Successfully updated course info for course: ${courseName}`);
+  } catch (err) {
+    console.error(`Error updating course: ${err}`);
+  }
+}
+
+async function updateAssignment(courseName, assignmentName, assignmentData) {
+  const params = {
+    TableName: TABLEData,
+    Key: { courses: courseName },
+    UpdateExpression: 'SET assignments.#assignmentName = :assignmentData',
+    ExpressionAttributeNames: {
+      '#assignmentName': assignmentName
+    },
+    ExpressionAttributeValues: {
+      ':assignmentData': assignmentData
+    }
+  };
+  try {
+    await dynamoDb.send(new UpdateCommand(params));
+    console.log(`Successfully updated assignment: ${assignmentName}`);
+  } catch (err) {
+    console.error(`Error updating assignment: ${err}`);
+  }
+}
+
 async function addAssignment(courseName, assignmentName, assignmentData) {
   const params = {
     TableName: TABLEData,
@@ -264,6 +301,23 @@ export const handler = async (event) => {
               }
             } else {
               response.body = JSON.stringify({ message: 'Unauthorized' });
+            }
+            break;
+          case 'PATCH':
+            if (pathArray[2] == 'courseInfo' && pathArray.length == 3) {
+              const { courseInfoData } = JSON.parse(event.body);
+              await updateCourseInfo(pathArray[1], courseInfoData);
+              response.body = 'Course Info successfully updated';
+              response.statusCode = 200;
+            } 
+            else if (pathArray[2] == 'assignments' && pathArray.length == 4) {
+              const { assignmentData } = JSON.parse(event.body);
+              await updateAssignment(pathArray[1], pathArray[3], assignmentData);
+              response.body = 'Assignment successfully updated';
+              response.statusCode = 200;
+            } else {
+              response.body = 'The request body was either not present or did not contain any fields related to Assignment objects.';
+              response.statusCode = 400;
             }
             break;
           default: 
