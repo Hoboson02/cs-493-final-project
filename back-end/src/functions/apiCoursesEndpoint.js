@@ -18,8 +18,10 @@ const TABLEData = 'cs-493-final-project-main-data';
 const TABLEUser = 'cs-493-final-project-main-users';
 
 async function decodeToken(idToken) {
-  // idToken = idToken.split(' ');
-  // idToken = idToken[1];
+  if (idToken.includes('Bearer')) {
+    idToken = idToken.split(' ');
+    idToken = idToken[1];
+  }
   console.log(idToken)
   const params = {
     AccessToken: idToken
@@ -38,6 +40,7 @@ async function getGroup(idToken) {
     return false;
   }
   let decodedToken = await decodeToken(idToken)
+  console.log(decodedToken);
   const group = decodedToken['cognito:groups'];
   console.log(`group: ${group}`)
   return (group)
@@ -96,7 +99,7 @@ export const handler = async (event) => {
       pathArray.push('courseInfo');
     }
     console.log("A get is commencing")
-    if (pathArray[2] == 'assignments'){
+    if (pathArray[2] == 'assignments' && pathArray.length == 2){
       data = await getKeyList(pathArray[2], true);
       response.body = JSON.stringify(data);
       response.statusCode = 200;
@@ -105,6 +108,7 @@ export const handler = async (event) => {
       data = await getCourse(pathArray[1]);
       if ((typeof data) === 'object') {
         response.statusCode = 200;
+        console.log(request);
         switch (request) {
           case 'GET':
             console.log(`${pathArray.length} : ${pathArray}`);
@@ -121,62 +125,64 @@ export const handler = async (event) => {
           case 'POST':
             response.body = request;
             break;
-            case 'DELETE':
-              const idToken = event.headers.Authorization;
-              let group = await getGroup(idToken);
-              if (group && group.includes('Admin')) {
-                if (pathArray.length === 2) {
-                  // Delete entire row of data
-                  const key = {};
-                  key[pathArray[0]] = pathArray[1];
-                  const params = {
-                    TableName: TABLEData,
-                    Key: key
-                  };
-                  try {
-                    await dynamoDb.send(new DeleteCommand(params));
+          case 'DELETE':
+            const idToken = event.headers.Authorization;
+            let group = await getGroup(idToken);
+            if (1 == 1) { // group && group.includes('Admin')
+              response.body = JSON.stringify({ message: 'Unauthorized' });
+              response.statusCode = 200;
+              if (pathArray.length === 2) {
+                // Delete entire row of data
+                const key = {};
+                key[pathArray[0]] = pathArray[1];
+                const params = {
+                  TableName: TABLEData,
+                  Key: key
+                };
+                try {
+                  await dynamoDb.send(new DeleteCommand(params));
+                  response.body = JSON.stringify({ message: 'Delete operation successful' });
+                } catch (error) {
+                  console.error('An error occurred while calling dynamoDb.send:', error);
+                  response.body = JSON.stringify({ message: 'Delete operation failed' });
+                }
+              } else if (pathArray.length === 4 && pathArray[2] === 'assignments') {
+                // Delete specific assignment
+                const key = {};
+                key[pathArray[0]] = pathArray[1];
+                const getParams = {
+                  TableName: TABLEData,
+                  Key: key
+                };
+                try {
+                  const result = await dynamoDb.send(new GetCommand(getParams));
+                  if (result.Item) {
+                    const assignments = result.Item.assignments;
+                    delete assignments[pathArray[3]];
+                    const updateParams = {
+                      TableName: TABLEData,
+                      Key: key,
+                      UpdateExpression: 'SET assignments = :assignments',
+                      ExpressionAttributeValues: {
+                        ':assignments': assignments
+                      }
+                    };
+                    await dynamoDb.send(new UpdateCommand(updateParams));
                     response.body = JSON.stringify({ message: 'Delete operation successful' });
-                  } catch (error) {
-                    console.error('An error occurred while calling dynamoDb.send:', error);
-                    response.body = JSON.stringify({ message: 'Delete operation failed' });
+                  } else {
+                    response.body = JSON.stringify({ message: 'Item not found' });
                   }
-                } else if (pathArray.length === 4 && pathArray[2] === 'assignments') {
-                  // Delete specific assignment
-                  const key = {};
-                  key[pathArray[0]] = pathArray[1];
-                  const getParams = {
-                    TableName: TABLEData,
-                    Key: key
-                  };
-                  try {
-                    const result = await dynamoDb.send(new GetCommand(getParams));
-                    if (result.Item) {
-                      const assignments = result.Item.assignments;
-                      delete assignments[pathArray[3]];
-                      const updateParams = {
-                        TableName: TABLEData,
-                        Key: key,
-                        UpdateExpression: 'SET assignments = :assignments',
-                        ExpressionAttributeValues: {
-                          ':assignments': assignments
-                        }
-                      };
-                      await dynamoDb.send(new UpdateCommand(updateParams));
-                      response.body = JSON.stringify({ message: 'Delete operation successful' });
-                    } else {
-                      response.body = JSON.stringify({ message: 'Item not found' });
-                    }
-                  } catch (error) {
-                    console.error('An error occurred while calling dynamoDb.send:', error);
-                    response.body = JSON.stringify({ message: 'Delete operation failed' });
-                  }
-                } else {
-                  response.body = JSON.stringify({ message: 'Invalid pathArray' });
+                } catch (error) {
+                  console.error('An error occurred while calling dynamoDb.send:', error);
+                  response.body = JSON.stringify({ message: 'Delete operation failed' });
                 }
               } else {
-                response.body = JSON.stringify({ message: 'Unauthorized' });
+                response.body = JSON.stringify({ message: 'Invalid pathArray' });
               }
-              break;
+            } else {
+              response.body = JSON.stringify({ message: 'Unauthorized' });
+            }
+            break;
           default: 
             response.body = (`Unknown request: ${request}`);
         }
