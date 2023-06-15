@@ -148,47 +148,59 @@ export const handler = async (event) => {
   // pathArray.pop()
   pathArray.shift();
   pathArray[pathArray.length-1] = pathArray[pathArray.length-1].replace('\"','');
-  if (pathArray[1]) {
-    if (pathArray.length == 2) {
+  if (pathArray[1] || request == 'POST' || request == 'DELETE') {
+    if (pathArray.length == 2 && request == 'GET') {
       pathArray.push('courseInfo');
     }
     console.log("A get is commencing")
-    if (pathArray[2] == 'assignments' && pathArray.length == 3){
+    if (pathArray[2] == 'assignments' && pathArray.length == 3 && request == 'GET'){
       data = await getKeyList(pathArray[2], true);
       response.body = JSON.stringify(data);
       response.statusCode = 200;
     }
     else{
-      data = await getCourse(pathArray[1]);
+      console.log("I should be here");
+      if (request != 'POST') { 
+        data = await getCourse(pathArray[1]);
+      }
+      else {
+        data = JSON.parse(event.body);
+      }
       if ((typeof data) === 'object') {
         response.statusCode = 200;
-        console.log(request);
         switch (request) {
           case 'GET':
             console.log(`${pathArray.length} : ${pathArray}`);
             if (pathArray.length >= 3) {
-              console.log(JSON.stringify(data));
               for (let i = 2; i < pathArray.length; i++) {
                 console.log(JSON.stringify(data[pathArray[i]]));
                 data = data[pathArray[i]];
               }
             }
             response.body = JSON.stringify(data);
-            console.log(response);
             break;
           case 'POST':
             if (pathArray[2] == 'assignments' && pathArray.length == 3) {
               const { courseName, assignmentName, assignmentData } = JSON.parse(event.body);
               await addAssignment(courseName, assignmentName, assignmentData)
+              response.body = 'New Assignment successfully added';
+              response.statusCode = 201
             }
             else if (pathArray[0] == 'courses' && pathArray.length == 1) {
-              addCourse(JSON.parse(event.body))
+              await addCourse(JSON.parse(event.body))
+              response.body = 'New Course successfully added';
+              response.statusCode = 201
             }
             else if (pathArray[4] == 'submissions' && pathArray.length == 5) {
               const { courseName, assignmentName, studentName, submissionData } = JSON.parse(event.body);
-              addSubmission(courseName, assignmentName, studentName, submissionData)
+              await addSubmission(courseName, assignmentName, studentName, submissionData)
+              response.body = 'New Submission successfully added';
+              response.statusCode = 201
             }
-            response.body = request;
+            else {
+              response.body = 'The request body was either not present or did not contain a valid Course object.';
+              response.statusCode = 400
+            }
             break;
           case 'DELETE':
             const idToken = event.headers.Authorization;
