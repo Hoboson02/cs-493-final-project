@@ -51,6 +51,12 @@ async function addCourse(course) {
 }
 
 async function addSubmission(courseName, assignmentName, studentName, submissionData) {
+
+  const now = new Date();
+  const submissionTime = `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear().toString().slice(-2)} ${now.getHours()}:${now.getMinutes()}`;
+
+  submissionData.submissionTime = submissionTime;
+
   const params = {
     TableName: TABLEData,
     Key: { courses: courseName },
@@ -182,7 +188,7 @@ export const handler = async (event) => {
           case 'POST':
             if (pathArray[2] == 'assignments' && pathArray.length == 3) {
               const { courseName, assignmentName, assignmentData } = JSON.parse(event.body);
-              await addAssignment(courseName, assignmentName, assignmentData)
+              await addAssignment(pathArray[1], assignmentName, assignmentData)
               response.body = 'New Assignment successfully added';
               response.statusCode = 201
             }
@@ -193,7 +199,7 @@ export const handler = async (event) => {
             }
             else if (pathArray[4] == 'submissions' && pathArray.length == 5) {
               const { courseName, assignmentName, studentName, submissionData } = JSON.parse(event.body);
-              await addSubmission(courseName, assignmentName, studentName, submissionData)
+              await addSubmission(pathArray[1], pathArray[3], studentName, submissionData)
               response.body = 'New Submission successfully added';
               response.statusCode = 201
             }
