@@ -17,6 +17,60 @@ const dynamoDb = DynamoDBDocumentClient.from(client);
 const TABLEData = 'cs-493-final-project-main-data';
 const TABLEUser = 'cs-493-final-project-main-users';
 
+async function addAssignment(courseName, assignmentName, assignmentData) {
+  const params = {
+    TableName: TABLEData,
+    Key: { courses: courseName },
+    UpdateExpression: 'SET assignments.#assignmentName = :assignmentData',
+    ExpressionAttributeNames: {
+      '#assignmentName': assignmentName
+    },
+    ExpressionAttributeValues: {
+      ':assignmentData': assignmentData
+    }
+  };
+  try {
+    await dynamoDb.send(new UpdateCommand(params));
+    console.log(`Successfully added assignment: ${assignmentName}`);
+  } catch (err) {
+    console.error(`Error adding assignment: ${err}`);
+  }
+}
+
+async function addCourse(course) {
+  const params = {
+    TableName: TABLEData,
+    Item: course
+  };
+  try {
+    await dynamoDb.send(new PutCommand(params));
+    console.log(`Successfully added item: ${JSON.stringify(course)}`);
+  } catch (err) {
+    console.error(`Error adding item: ${err}`);
+  }
+}
+
+async function addSubmission(courseName, assignmentName, studentName, submissionData) {
+  const params = {
+    TableName: TABLEData,
+    Key: { courses: courseName },
+    UpdateExpression: 'SET assignments.#assignmentName.submissions.#studentName = :submissionData',
+    ExpressionAttributeNames: {
+      '#assignmentName': assignmentName,
+      '#studentName': studentName
+    },
+    ExpressionAttributeValues: {
+      ':submissionData': submissionData
+    }
+  };
+  try {
+    await dynamoDb.send(new UpdateCommand(params));
+    console.log(`Successfully added submission for student: ${studentName}`);
+  } catch (err) {
+    console.error(`Error adding submission: ${err}`);
+  }
+}
+
 async function decodeToken(idToken) {
   if (idToken.includes('Bearer')) {
     idToken = idToken.split(' ');
@@ -99,7 +153,7 @@ export const handler = async (event) => {
       pathArray.push('courseInfo');
     }
     console.log("A get is commencing")
-    if (pathArray[2] == 'assignments' && pathArray.length == 2){
+    if (pathArray[2] == 'assignments' && pathArray.length == 3){
       data = await getKeyList(pathArray[2], true);
       response.body = JSON.stringify(data);
       response.statusCode = 200;
@@ -123,6 +177,17 @@ export const handler = async (event) => {
             console.log(response);
             break;
           case 'POST':
+            if (pathArray[2] == 'assignments' && pathArray.length == 3) {
+              const { courseName, assignmentName, assignmentData } = JSON.parse(event.body);
+              await addAssignment(courseName, assignmentName, assignmentData)
+            }
+            else if (pathArray[0] == 'courses' && pathArray.length == 1) {
+              addCourse(JSON.parse(event.body))
+            }
+            else if (pathArray[4] == 'submissions' && pathArray.length == 5) {
+              const { courseName, assignmentName, studentName, submissionData } = JSON.parse(event.body);
+              addSubmission(courseName, assignmentName, studentName, submissionData)
+            }
             response.body = request;
             break;
           case 'DELETE':
