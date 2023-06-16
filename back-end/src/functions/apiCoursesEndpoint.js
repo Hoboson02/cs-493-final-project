@@ -147,11 +147,11 @@ async function getGroup(idToken) {
     Key: {
       'users': group
     },
-      'projectExpression': "group"
+      ProjectExpression: "role"
   };
   try {
     const data = await dynamoDb.send(new GetCommand(params));
-    return data.Item;
+    return data.Item.role;
     } catch (error) {
     console.error(error);
     }
@@ -264,7 +264,9 @@ export const handler = async (event) => {
           case 'DELETE':
             const idToken = event.headers.Authorization;
             let group = await getGroup(idToken);
-            if (1 == 1) { // group && group.includes('Admin')
+            response.body = JSON.stringify(group);
+            console.log(group);
+            if (group && group == 'Admin') { // group && group.includes('Admin')
               response.body = JSON.stringify({ message: 'Unauthorized' });
               response.statusCode = 200;
               if (pathArray.length === 2) {
