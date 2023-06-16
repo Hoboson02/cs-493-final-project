@@ -267,7 +267,7 @@ export const handler = async (event) => {
             response.body = JSON.stringify(group);
             console.log(group);
             if (group && group == 'Admin') { // group && group.includes('Admin')
-              response.body = JSON.stringify({ message: 'Unauthorized' });
+              response.body = JSON.stringify({ message: 'Authorized' });
               response.statusCode = 200;
               if (pathArray.length === 2) {
                 // Delete entire row of data
