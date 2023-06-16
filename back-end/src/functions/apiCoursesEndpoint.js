@@ -269,7 +269,9 @@ export const handler = async (event) => {
             if (group && group == 'Admin') { // group && group.includes('Admin')
               response.body = JSON.stringify({ message: 'Authorized' });
               response.statusCode = 200;
+              console.log(`This is the PATH LENGTH: ${pathArray.length}`);
               if (pathArray.length === 2) {
+                console.log("I am inside where I need to be");
                 // Delete entire row of data
                 const key = {};
                 key[pathArray[0]] = pathArray[1];
